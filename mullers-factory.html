@@ -69,6 +69,7 @@
             <th>Basil / Pesto</th>
             <th>Walnuts</th>
             <th>Bacon</th>
+            <th>Ham</th>
             <th>Egg</th>
             <th>Aubergines</th>
             <th>Tuna</th>
@@ -108,15 +109,15 @@
       { name: "La Mamma Mia", price: 14.10, ingredients: ["Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Basil / Pesto", "Aubergines (Eggplant)"] },
       { name: "La Madrague", price: 16.40, ingredients: ["Gruyère Cheese", "Dried Tomatoes", "Tuna (Thon)"] },
       { name: "La Médina", price: 12.40, ingredients: ["Dried Tomatoes", "Basil / Pesto"] }, // Note: Added Pesto/Sauce based on description "pesto rosso"
-      { name: "La Muller's", price: 15.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)"] }, // Note: Added Ham/Jambon which is implied for Muller's
-      { name: "La Mythique", price: 13.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)"] } // Note: Added Ham/Jambon which is implied for Mythique
+      { name: "La Muller's", price: 15.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)", "Ham"] }, // Note: Added Ham/Jambon which is implied for Muller's
+      { name: "La Mythique", price: 13.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)", "Ham"] } // Note: Added Ham/Jambon which is implied for Mythique
     ];
 
     // Consolidated list of all unique ingredients for checkbox generation
     const ALL_INGREDIENTS = [
       "Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Dried Tomatoes",
       "Basil / Pesto", "Walnuts (Noix)", "Bacon (Lardons)", "Egg (Oeuf)",
-      "Aubergines (Eggplant)", "Tuna (Thon)"
+      "Aubergines (Eggplant)", "Tuna (Thon)", "Ham"
     ];
 
     // --- DOM Element References ---
