@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muller's Factory Crêpe Finder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 900px;
+      margin-top: 50px;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .ingredient-checkboxes {
+      column-count: 2;
+      /* Display checkboxes in two columns */
+      column-gap: 20px;
+    }
+
+    @media (max-width: 576px) {
+      .ingredient-checkboxes {
+        column-count: 1;
+      }
+    }
+
+    .table-responsive {
+      margin-bottom: 30px;
+    }
+
+    .result-box {
+      background-color: #e9ecef;
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .text-muller {
+      color: #6c757d;
+      /* A subtle color for the name */
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1 class="text-center mb-4">Muller's Factory Crêpe Finder 🥞</h1>
+    <p class="text-center text-muller">Find the perfect savory crêpe based on your ingredient selection.</p>
+
+    <h3 class="mt-4 mb-3">Menu Reference Table</h3>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Crêpe Name</th>
+            <th>Gruyère</th>
+            <th>Goat Cheese</th>
+            <th>Fresh Tomatoes</th>
+            <th>Dried Tomatoes</th>
+            <th>Basil / Pesto</th>
+            <th>Walnuts</th>
+            <th>Bacon</th>
+            <th>Egg</th>
+            <th>Aubergines</th>
+            <th>Tuna</th>
+          </tr>
+        </thead>
+        <tbody id="menuTableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="mt-4 mb-3">Select Your Desired Ingredients</h3>
+    <div id="ingredientCheckboxes" class="ingredient-checkboxes mb-4">
+    </div>
+
+    <h3 class="mt-4 mb-3">Best Match</h3>
+    <div class="result-box">
+      <p class="mb-0">
+        Based on your selection, the best matching crêpe is:
+        <br>
+        <strong id="resultOutput" class="fs-4 text-primary">Please select ingredients above to find your
+          match.</strong>
+      </p>
+      <p class="mt-2 mb-0 text-muted" id="matchDetails"></p>
+    </div>
+  </div>
+
+  <script>
+    // --- Data Model: The Crêpe Menu ---
+    const CREPES = [
+      { name: "La Maraîchère", price: 11.30, ingredients: ["Gruyère Cheese", "Fresh Tomatoes", "Basil / Pesto"] },
+      { name: "La Maya", price: 12.10, ingredients: ["Goat Cheese (Chèvre)", "Walnuts (Noix)"] },
+      { name: "La Montagnarde", price: 15.40, ingredients: ["Gruyère Cheese", "Bacon (Lardons)", "Egg (Oeuf)"] },
+      { name: "La Médiévale", price: 13.50, ingredients: ["Gruyère Cheese", "Bacon (Lardons)"] },
+      { name: "La Margherita", price: 13.90, ingredients: ["Dried Tomatoes", "Basil / Pesto"] },
+      { name: "La Muscade", price: 13.10, ingredients: ["Fresh Tomatoes", "Aubergines (Eggplant)", "Walnuts (Noix)"] },
+      { name: "La Maffia", price: 15.40, ingredients: ["Dried Tomatoes", "Aubergines (Eggplant)", "Tuna (Thon)"] },
+      { name: "La Mamma Mia", price: 14.10, ingredients: ["Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Basil / Pesto", "Aubergines (Eggplant)"] },
+      { name: "La Madrague", price: 16.40, ingredients: ["Gruyère Cheese", "Dried Tomatoes", "Tuna (Thon)"] },
+      { name: "La Médina", price: 12.40, ingredients: ["Dried Tomatoes", "Basil / Pesto"] }, // Note: Added Pesto/Sauce based on description "pesto rosso"
+      { name: "La Muller's", price: 15.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)"] }, // Note: Added Ham/Jambon which is implied for Muller's
+      { name: "La Mythique", price: 13.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)"] } // Note: Added Ham/Jambon which is implied for Mythique
+    ];
+
+    // Consolidated list of all unique ingredients for checkbox generation
+    const ALL_INGREDIENTS = [
+      "Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Dried Tomatoes",
+      "Basil / Pesto", "Walnuts (Noix)", "Bacon (Lardons)", "Egg (Oeuf)",
+      "Aubergines (Eggplant)", "Tuna (Thon)"
+    ];
+
+    // --- DOM Element References ---
+    const resultOutput = document.getElementById('resultOutput');
+    const matchDetails = document.getElementById('matchDetails');
+    const checkboxesContainer = document.getElementById('ingredientCheckboxes');
+    const menuTableBody = document.getElementById('menuTableBody');
+
+    // --- Helper Functions ---
+
+    /**
+     * Finds the best matching crêpe based on selected ingredients.
+     * @param {string[]} selectedIngredients - Array of ingredients the user checked.
+     * @returns {{name: string, matchCount: number, missing: string[]}} - The best match.
+     */
+    function findBestMatch(selectedIngredients) {
+      if (selectedIngredients.length === 0) {
+        return null;
+      }
+
+      let bestMatch = { name: null, matchCount: -1, missing: [] };
+
+      for (const crepe of CREPES) {
+        let matchCount = 0;
+        const missingIngredients = [];
+
+        // 1. Check for **all** selected ingredients being present in the crepe
+        const matchesAll = selectedIngredients.every(selIng => {
+          const isPresent = crepe.ingredients.includes(selIng);
+          if (isPresent) {
+            matchCount++;
+          }
+          return isPresent;
+        });
+
+        // 2. Calculate ingredients from the *crepe* that are *not* selected by the user
+        const unselectedCrepeIngredients = crepe.ingredients.filter(crepeIng =>
+          !selectedIngredients.includes(crepeIng)
+        );
+
+        // Our scoring logic: 
+        // - Priority 1: Maximize the count of user-selected ingredients found in the crepe (matchCount).
+        // - Priority 2: Minimize the number of *extra* ingredients in the crepe (unselectedCrepeIngredients.length).
+        // This favors crêpes that are a perfect subset of the selection, or the closest match otherwise.
+
+        const score = matchCount * 100 - unselectedCrepeIngredients.length;
+
+        // If the current crêpe is better than the current best match, update it.
+        if (score > (bestMatch.matchCount * 100 - bestMatch.missing.length)) {
+          bestMatch.name = crepe.name;
+          bestMatch.matchCount = matchCount;
+          bestMatch.missing = unselectedCrepeIngredients;
+        }
+      }
+      return {
+        name: bestMatch.name,
+        matchCount: bestMatch.matchCount,
+        missing: bestMatch.missing
+      };
+    }
+
+    /**
+     * Updates the result display based on the user's current selections.
+     */
+    function updateResults() {
+      const selectedCheckboxes = Array.from(checkboxesContainer.querySelectorAll('input[type="checkbox"]:checked'));
+      const selectedIngredients = selectedCheckboxes.map(cb => cb.value);
+
+      if (selectedIngredients.length === 0) {
+        resultOutput.textContent = "Please select ingredients above to find your match.";
+        resultOutput.classList.remove('text-success');
+        resultOutput.classList.add('text-primary');
+        matchDetails.textContent = "";
+        return;
+      }
+
+      const match = findBestMatch(selectedIngredients);
+      const totalSelected = selectedIngredients.length;
+      const totalCrepeIngredients = CREPES.find(c => c.name === match.name).ingredients.length;
+
+      resultOutput.textContent = match.name;
+      resultOutput.classList.add('text-success');
+      resultOutput.classList.remove('text-primary');
+
+      let detailText = `Found ${match.matchCount} out of ${totalSelected} desired ingredients in **${match.name}**.`;
+
+      if (match.missing.length > 0) {
+        detailText += ` The crêpe also includes the following ${match.missing.length} ingredients you did not select: **${match.missing.join(', ')}**.`;
+      } else if (match.matchCount === totalSelected && totalSelected === totalCrepeIngredients) {
+        detailText = `**A PERFECT MATCH!** ${match.name} contains exactly the ingredients you selected.`;
+      } else if (match.matchCount === totalSelected && match.missing.length === 0) {
+        detailText += ` **(Exact Match)** The crêpe has all your selected ingredients and no unwanted extras from this list.`;
+      }
+
+      matchDetails.innerHTML = detailText;
+    }
+
+    /**
+     * Generates the ingredient checkboxes and adds event listeners.
+     */
+    function setupCheckboxes() {
+      ALL_INGREDIENTS.forEach(ingredient => {
+        const div = document.createElement('div');
+        div.classList.add('form-check');
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = ingredient.replace(/\s/g, '-') // Simple ID conversion
+        input.value = ingredient;
+        input.classList.add('form-check-input');
+        input.addEventListener('change', updateResults);
+
+        const label = document.createElement('label');
+        label.htmlFor = input.id;
+        label.textContent = ingredient;
+        label.classList.add('form-check-label');
+
+        div.appendChild(input);
+        div.appendChild(label);
+        checkboxesContainer.appendChild(div);
+      });
+    }
+
+    /**
+     * Generates the reference table body from the CREPES data.
+     */
+    function generateMenuTable() {
+      const ingredientMap = ALL_INGREDIENTS.reduce((acc, ing) => {
+        acc[ing] = ing;
+        return acc;
+      }, {});
+
+      CREPES.forEach(crepe => {
+        const tr = document.createElement('tr');
+
+        // Crêpe Name
+        const nameTd = document.createElement('td');
+        nameTd.textContent = crepe.name;
+        tr.appendChild(nameTd);
+
+        // Ingredient Checkmarks
+        ALL_INGREDIENTS.forEach(ingKey => {
+          const td = document.createElement('td');
+          td.classList.add('text-center');
+          if (crepe.ingredients.includes(ingKey)) {
+            td.textContent = '✅';
+          }
+          tr.appendChild(td);
+        });
+
+        menuTableBody.appendChild(tr);
+      });
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+      generateMenuTable();
+      setupCheckboxes();
+      updateResults(); // Initial call to set the default message
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

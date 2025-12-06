@@ -1,2 +1,3 @@
-# nuggets
-HTML/JS Nuggets
+# Nuggets
+
+Hosting HTML/JS Nuggets
