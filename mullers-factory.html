@@ -60,19 +60,8 @@
     <div class="table-responsive">
       <table class="table table-sm table-bordered table-striped">
         <thead class="table-dark">
-          <tr>
+          <tr id="tableHeaderRow">
             <th>Crêpe Name</th>
-            <th>Gruyère</th>
-            <th>Goat Cheese</th>
-            <th>Fresh Tomatoes</th>
-            <th>Dried Tomatoes</th>
-            <th>Basil / Pesto</th>
-            <th>Walnuts</th>
-            <th>Bacon</th>
-            <th>Ham</th>
-            <th>Egg</th>
-            <th>Aubergines</th>
-            <th>Tuna</th>
           </tr>
         </thead>
         <tbody id="menuTableBody">
@@ -97,27 +86,48 @@
   </div>
 
   <script>
+    // --- Ingredient Constants ---
+    const GRUYERE_CHEESE = "Gruyère Cheese";
+    const GOAT_CHEESE = "Goat Cheese (Chèvre)";
+    const FRESH_TOMATOES = "Fresh Tomatoes";
+    const DRIED_TOMATOES = "Dried Tomatoes";
+    const BASIL_PESTO = "Basil / Pesto";
+    const WALNUTS = "Walnuts (Noix)";
+    const BACON = "Bacon (Lardons)";
+    const EGG = "Egg (Oeuf)";
+    const AUBERGINES = "Aubergines (Eggplant)";
+    const TUNA = "Tuna (Thon)";
+    const HAM = "Ham";
+
     // --- Data Model: The Crêpe Menu ---
     const CREPES = [
-      { name: "La Maraîchère", price: 11.30, ingredients: ["Gruyère Cheese", "Fresh Tomatoes", "Basil / Pesto"] },
-      { name: "La Maya", price: 12.10, ingredients: ["Goat Cheese (Chèvre)", "Walnuts (Noix)"] },
-      { name: "La Montagnarde", price: 15.40, ingredients: ["Gruyère Cheese", "Bacon (Lardons)", "Egg (Oeuf)"] },
-      { name: "La Médiévale", price: 13.50, ingredients: ["Gruyère Cheese", "Bacon (Lardons)"] },
-      { name: "La Margherita", price: 13.90, ingredients: ["Dried Tomatoes", "Basil / Pesto"] },
-      { name: "La Muscade", price: 13.10, ingredients: ["Fresh Tomatoes", "Aubergines (Eggplant)", "Walnuts (Noix)"] },
-      { name: "La Maffia", price: 15.40, ingredients: ["Dried Tomatoes", "Aubergines (Eggplant)", "Tuna (Thon)"] },
-      { name: "La Mamma Mia", price: 14.10, ingredients: ["Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Basil / Pesto", "Aubergines (Eggplant)"] },
-      { name: "La Madrague", price: 16.40, ingredients: ["Gruyère Cheese", "Dried Tomatoes", "Tuna (Thon)"] },
-      { name: "La Médina", price: 12.40, ingredients: ["Dried Tomatoes", "Basil / Pesto"] }, // Note: Added Pesto/Sauce based on description "pesto rosso"
-      { name: "La Muller's", price: 15.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)", "Ham"] }, // Note: Added Ham/Jambon which is implied for Muller's
-      { name: "La Mythique", price: 13.40, ingredients: ["Gruyère Cheese", "Egg (Oeuf)", "Ham"] } // Note: Added Ham/Jambon which is implied for Mythique
+      { name: "La Maraîchère", price: 11.30, ingredients: [GRUYERE_CHEESE, FRESH_TOMATOES, BASIL_PESTO] },
+      { name: "La Maya", price: 12.10, ingredients: [GOAT_CHEESE, WALNUTS] },
+      { name: "La Montagnarde", price: 15.40, ingredients: [GRUYERE_CHEESE, BACON, EGG] },
+      { name: "La Médiévale", price: 13.50, ingredients: [GRUYERE_CHEESE, BACON] },
+      { name: "La Margherita", price: 13.90, ingredients: [DRIED_TOMATOES, BASIL_PESTO] },
+      { name: "La Muscade", price: 13.10, ingredients: [FRESH_TOMATOES, AUBERGINES, WALNUTS] },
+      { name: "La Maffia", price: 15.40, ingredients: [DRIED_TOMATOES, AUBERGINES, TUNA] },
+      { name: "La Mamma Mia", price: 14.10, ingredients: [GRUYERE_CHEESE, GOAT_CHEESE, FRESH_TOMATOES, BASIL_PESTO, AUBERGINES] },
+      { name: "La Madrague", price: 16.40, ingredients: [GRUYERE_CHEESE, DRIED_TOMATOES, TUNA] },
+      { name: "La Médina", price: 12.40, ingredients: [DRIED_TOMATOES, BASIL_PESTO] },
+      { name: "La Muller's", price: 15.40, ingredients: [GRUYERE_CHEESE, EGG, HAM] },
+      { name: "La Mythique", price: 13.40, ingredients: [GRUYERE_CHEESE, EGG, HAM] }
     ];
 
     // Consolidated list of all unique ingredients for checkbox generation
     const ALL_INGREDIENTS = [
-      "Gruyère Cheese", "Goat Cheese (Chèvre)", "Fresh Tomatoes", "Dried Tomatoes",
-      "Basil / Pesto", "Walnuts (Noix)", "Bacon (Lardons)", "Egg (Oeuf)",
-      "Aubergines (Eggplant)", "Tuna (Thon)", "Ham"
+      GRUYERE_CHEESE,
+      GOAT_CHEESE,
+      FRESH_TOMATOES,
+      DRIED_TOMATOES,
+      BASIL_PESTO,
+      WALNUTS,
+      BACON,
+      EGG,
+      AUBERGINES,
+      TUNA,
+      HAM
     ];
 
     // --- DOM Element References ---
@@ -242,6 +252,18 @@
     }
 
     /**
+     * Generates the reference table headers from ALL_INGREDIENTS.
+     */
+    function generateTableHeaders() {
+      const headerRow = document.getElementById('tableHeaderRow');
+      ALL_INGREDIENTS.forEach(ingredient => {
+        const th = document.createElement('th');
+        th.textContent = ingredient;
+        headerRow.appendChild(th);
+      });
+    }
+
+    /**
      * Generates the reference table body from the CREPES data.
      */
     function generateMenuTable() {
@@ -274,6 +296,7 @@
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
+      generateTableHeaders();
       generateMenuTable();
       setupCheckboxes();
       updateResults(); // Initial call to set the default message
