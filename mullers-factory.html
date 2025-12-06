@@ -202,14 +202,14 @@
       resultOutput.classList.add('text-success');
       resultOutput.classList.remove('text-primary');
 
-      let detailText = `Found ${match.matchCount} out of ${totalSelected} desired ingredients in **${match.name}**.`;
+      let detailText = `Found ${match.matchCount} out of ${totalSelected} desired ingredients in <strong>${match.name}</strong>.`;
 
       if (match.missing.length > 0) {
-        detailText += ` The crêpe also includes the following ${match.missing.length} ingredients you did not select: **${match.missing.join(', ')}**.`;
+        detailText += ` The crêpe also includes the following ${match.missing.length} ingredients you did not select: <strong>${match.missing.join(', ')}</strong>.`;
       } else if (match.matchCount === totalSelected && totalSelected === totalCrepeIngredients) {
-        detailText = `**A PERFECT MATCH!** ${match.name} contains exactly the ingredients you selected.`;
+        detailText = `<strong>A PERFECT MATCH!</strong> ${match.name} contains exactly the ingredients you selected.`;
       } else if (match.matchCount === totalSelected && match.missing.length === 0) {
-        detailText += ` **(Exact Match)** The crêpe has all your selected ingredients and no unwanted extras from this list.`;
+        detailText += ` <strong>(Exact Match)</strong> The crêpe has all your selected ingredients and no unwanted extras from this list.`;
       }
 
       matchDetails.innerHTML = detailText;
