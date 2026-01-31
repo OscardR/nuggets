@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Models Explorer 2026</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e14;
+      --bg-secondary: #151b24;
+      --bg-tertiary: #1f2937;
+      --accent-primary: #22d3ee;
+      --accent-secondary: #a78bfa;
+      --accent-tertiary: #fb923c;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --border-color: #374151;
+      --success: #34d399;
+      --warning: #fbbf24;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Martian Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .background-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+      padding: 3rem 0;
+      border-bottom: 2px solid var(--border-color);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.05), rgba(167, 139, 250, 0.05));
+      border-radius: 16px;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 3.5rem;
+      font-weight: normal;
+      font-style: italic;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .controls {
+      background: var(--bg-secondary);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    input[type="text"],
+    select {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .chip {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chip:hover {
+      border-color: var(--accent-primary);
+      background: rgba(34, 211, 238, 0.1);
+    }
+
+    .chip.active {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .stats-bar {
+      background: var(--bg-secondary);
+      padding: 1.5rem 2rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.8s ease-out 0.4s both;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .table-container {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.8s ease-out 0.6s both;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--bg-tertiary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-primary);
+      border-bottom: 2px solid var(--border-color);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    th:hover {
+      background: rgba(34, 211, 238, 0.1);
+    }
+
+    th.sortable::after {
+      content: ' ⇅';
+      opacity: 0.3;
+    }
+
+    th.sorted-asc::after {
+      content: ' ↑';
+      opacity: 1;
+    }
+
+    th.sorted-desc::after {
+      content: ' ↓';
+      opacity: 1;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.875rem;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+      animation: slideIn 0.5s ease-out both;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    tbody tr:hover {
+      background: rgba(34, 211, 238, 0.05);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .badge-opensource {
+      background: rgba(52, 211, 153, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .badge-private {
+      background: rgba(251, 146, 60, 0.2);
+      color: var(--accent-tertiary);
+      border: 1px solid var(--accent-tertiary);
+    }
+
+    .badge-text {
+      background: rgba(34, 211, 238, 0.2);
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .badge-image {
+      background: rgba(167, 139, 250, 0.2);
+      color: var(--accent-secondary);
+      border: 1px solid var(--accent-secondary);
+    }
+
+    .badge-video {
+      background: rgba(251, 146, 60, 0.2);
+      color: var(--accent-tertiary);
+      border: 1px solid var(--accent-tertiary);
+    }
+
+    .badge-audio {
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+
+    .badge-multimodal {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(167, 139, 250, 0.2));
+      color: var(--text-primary);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .score-value {
+      font-weight: 700;
+      color: var(--accent-primary);
+      min-width: 2rem;
+    }
+
+    .score-visual {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-primary), var(--success));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .company-logo {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--accent-secondary);
+      text-decoration: underline;
+    }
+
+    .notes {
+      background: var(--bg-secondary);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-top: 3rem;
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.8s ease-out 0.8s both;
+    }
+
+    .notes h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 2rem;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+      color: var(--accent-primary);
+    }
+
+    .notes h3 {
+      font-size: 1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .notes ul {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .notes li {
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .notes strong {
+      color: var(--text-primary);
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .no-results-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .model-card {
+      display: none;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.5s ease-out both;
+    }
+
+    .model-card-header {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .model-card-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .model-card-company {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .model-card-body {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .model-card-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .model-card-field.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .model-card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    .model-card-value {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .model-card-footer {
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .model-card-link {
+      display: block;
+      text-align: center;
+      padding: 0.75rem;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid var(--accent-primary);
+      border-radius: 8px;
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .model-card-link:hover {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 0.875rem;
+        letter-spacing: 2px;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      header {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .controls {
+        padding: 1rem;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .stat {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      /* Hide table, show cards on mobile */
+      .table-container {
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
+
+      table {
+        display: none;
+      }
+
+      .model-card {
+        display: block;
+      }
+
+      .notes {
+        padding: 1.5rem;
+      }
+
+      .notes h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background-grid"></div>
+
+  <div class="container">
+    <header>
+      <h1>AI Models Explorer</h1>
+      <p class="subtitle">January 2026 • Comprehensive Database</p>
+    </header>
+
+    <div class="controls">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="search">Search Models</label>
+          <input type="text" id="search" placeholder="Type to search...">
+        </div>
+
+        <div class="control-group">
+          <label for="categoryFilter">Category</label>
+          <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <option value="text">Text/Language Models</option>
+            <option value="image">Image Generation</option>
+            <option value="video">Video Generation</option>
+            <option value="multimodal">Vision-Language</option>
+            <option value="audio">Audio/Speech</option>
+            <option value="embeddings">Embeddings</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="availabilityFilter">Availability</label>
+          <select id="availabilityFilter">
+            <option value="all">All Types</option>
+            <option value="opensource">Open Source</option>
+            <option value="private">Private/API</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="companyFilter">Company</label>
+          <select id="companyFilter">
+            <option value="all">All Companies</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Modality Quick Filters</label>
+        <div class="filter-chips">
+          <div class="chip" data-filter="moe">MoE Architecture</div>
+          <div class="chip" data-filter="code">Code Specialized</div>
+          <div class="chip" data-filter="reasoning">Reasoning</div>
+          <div class="chip" data-filter="multimodal">Multimodal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="totalModels">0</div>
+        <div class="stat-label">Total Models</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="visibleModels">0</div>
+        <div class="stat-label">Showing</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="openSourceCount">0</div>
+        <div class="stat-label">Open Source</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="avgScore">0</div>
+        <div class="stat-label">Avg Score</div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="modelsTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="company">Company</th>
+            <th class="sortable" data-sort="name">Model Name</th>
+            <th class="sortable" data-sort="modality">Modality</th>
+            <th class="sortable" data-sort="availability">Availability</th>
+            <th class="sortable" data-sort="score">Score</th>
+            <th class="sortable" data-sort="pricing">Pricing</th>
+            <th>Website</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+      <div id="cardsContainer"></div>
+    </div>
+
+    <div class="notes">
+      <h2>Important Notes</h2>
+
+      <h3>1. Scores (0-100)</h3>
+      <ul>
+        <li>Approximate estimates based on benchmark performance, user reviews, and industry assessments</li>
+        <li>Not official scores but relative performance indicators within categories</li>
+        <li>Updated regularly as new benchmarks emerge</li>
+      </ul>
+
+      <h3>2. Pricing</h3>
+      <ul>
+        <li>Prices change frequently and may vary by region, volume, and specific use case</li>
+        <li><strong>Always check official websites for current pricing</strong></li>
+        <li>API prices typically shown per 1M tokens for text models</li>
+        <li>Image/video models may use different pricing units (per image, per second, subscriptions)</li>
+      </ul>
+
+      <h3>3. Availability</h3>
+      <ul>
+        <li><strong>Private:</strong> API/subscription access only through official channels</li>
+        <li><strong>Open Source:</strong> Model weights are publicly available for download and self-hosting
+        </li>
+        <li>Open source models may have specific licenses (MIT, Apache 2.0, Llama License, etc.)</li>
+        <li>Self-hosting open source models requires computational resources (GPUs) with associated costs</li>
+      </ul>
+
+      <h3>4. Model Categories</h3>
+      <ul>
+        <li><strong>MoE (Mixture of Experts):</strong> Architecture that activates only subset of parameters per
+          inference</li>
+        <li><strong>Multimodal:</strong> Handles multiple input types (text, images, audio, video)</li>
+        <li><strong>Reasoning Models:</strong> Specialized for complex logical reasoning and problem-solving
+        </li>
+        <li><strong>Code Specialized:</strong> Optimized for programming and software development tasks</li>
+      </ul>
+
+      <h3>5. ComfyUI & CLI Compatibility</h3>
+      <ul>
+        <li>Most open-source image and video models (Stable Diffusion, FLUX, LTX, etc.) can be run via ComfyUI
+        </li>
+        <li>Compatible with CLI tools and frameworks like Hugging Face Diffusers, Ollama, llama.cpp</li>
+        <li>Local execution provides full control but requires technical setup and hardware</li>
+      </ul>
+
+      <h3>6. Data Freshness</h3>
+      <ul>
+        <li>This database represents major models as of January 2026</li>
+        <li>AI model landscape evolves rapidly with frequent releases and updates</li>
+        <li><strong>Not exhaustive:</strong> Hundreds of smaller, specialized, and regional models exist</li>
+        <li>Focus is on widely-used and significant models with proven performance</li>
+      </ul>
+
+      <h3>7. Key Model Highlights</h3>
+      <ul>
+        <li><strong>GLM-4.7:</strong> #1 on LiveCodeBench (84.9%), 200K context, preserved thinking feature</li>
+        <li><strong>Kimi K2.5:</strong> 1T parameters, 256K context, Agent Swarm with 100 concurrent agents</li>
+        <li><strong>DeepSeek-R1:</strong> Open reasoning model competitive with o1, MIT licensed</li>
+        <li><strong>Z-Image-Turbo:</strong> #1 open-source on Artificial Analysis, sub-second inference</li>
+        <li><strong>LTX-2:</strong> First open-source synchronized audio-video generation, true 4K@50FPS</li>
+        <li><strong>FLUX 2 Max:</strong> Leading open-source image model with exceptional quality</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const models = [
+      // Text/Language Models
+      { company: "OpenAI", name: "GPT-5.2", modality: "Text", category: "text", availability: "Private", score: 95, pricing: "Input: $2.50 / Output: $10.00 per 1M tokens", website: "https://openai.com" },
+      { company: "OpenAI", name: "GPT-5.1 Codex Max", modality: "Text/Code", category: "text", availability: "Private", score: 92, pricing: "Input: $0.25 / Output: $2.00 per 1M tokens", website: "https://openai.com" },
+      { company: "OpenAI", name: "GPT-4o", modality: "Text/Multimodal", category: "text", availability: "Private", score: 85, pricing: "Input: $2.50 / Output: $10.00 per 1M tokens", website: "https://openai.com" },
+      { company: "OpenAI", name: "GPT-oss-120b", modality: "Text", category: "text", availability: "Open Source", score: 78, pricing: "Free (self-hosted)", website: "https://openai.com" },
+      { company: "OpenAI", name: "GPT-oss-20b", modality: "Text", category: "text", availability: "Open Source", score: 72, pricing: "Free (self-hosted)", website: "https://openai.com" },
+      { company: "Anthropic", name: "Claude Opus 4.5", modality: "Text", category: "text", availability: "Private", score: 94, pricing: "Input: $5.00 / Output: $25.00 per 1M tokens", website: "https://anthropic.com" },
+      { company: "Anthropic", name: "Claude Sonnet 4.5", modality: "Text", category: "text", availability: "Private", score: 91, pricing: "Input: $3.00 / Output: $15.00 per 1M tokens", website: "https://anthropic.com" },
+      { company: "Anthropic", name: "Claude Haiku 4.5", modality: "Text", category: "text", availability: "Private", score: 82, pricing: "Input: $1.00 / Output: $5.00 per 1M tokens", website: "https://anthropic.com" },
+      { company: "Google", name: "Gemini 3 Pro", modality: "Text/Multimodal", category: "text", availability: "Private", score: 93, pricing: "Input: $2.00 / Output: $12.00 per 1M tokens", website: "https://google.com/gemini" },
+      { company: "Google", name: "Gemini 2.5 Pro", modality: "Text/Multimodal", category: "text", availability: "Private", score: 89, pricing: "Input: $1.25 / Output: $5.00 per 1M tokens", website: "https://google.com/gemini" },
+      { company: "Google", name: "Gemini 2.5 Flash", modality: "Text/Multimodal", category: "text", availability: "Private", score: 83, pricing: "Input: $0.10 / Output: $0.40 per 1M tokens", website: "https://google.com/gemini" },
+      { company: "Google", name: "Gemini 2.5 Flash-Lite", modality: "Text", category: "text", availability: "Private", score: 75, pricing: "Input: $0.10 / Output: $0.40 per 1M tokens", website: "https://google.com/gemini" },
+      { company: "xAI", name: "Grok 4.1", modality: "Text", category: "text", availability: "Private", score: 92, pricing: "Contact for pricing", website: "https://x.ai" },
+      { company: "xAI", name: "Grok 3", modality: "Text", category: "text", availability: "Private", score: 88, pricing: "Contact for pricing", website: "https://x.ai" },
+      { company: "xAI", name: "Grok Code Fast 1", modality: "Text/Code", category: "text", availability: "Private", score: 84, pricing: "Contact for pricing", website: "https://x.ai" },
+      { company: "DeepSeek", name: "DeepSeek V3.2", modality: "Text, MoE", category: "text", availability: "Open Source (MIT)", score: 90, pricing: "Input: $0.07 / Output: $0.28 per 1M tokens", website: "https://deepseek.com" },
+      { company: "DeepSeek", name: "DeepSeek-R1", modality: "Text/Reasoning", category: "text", availability: "Open Source (MIT)", score: 91, pricing: "Input: $0.55 / Output: $2.19 per 1M tokens", website: "https://deepseek.com" },
+      { company: "DeepSeek", name: "DeepSeek-Coder V2", modality: "Text/Code", category: "text", availability: "Open Source (MIT)", score: 86, pricing: "Free (self-hosted)", website: "https://deepseek.com" },
+      { company: "Alibaba", name: "Qwen3-235B", modality: "Text, MoE", category: "text", availability: "Open Source (Apache 2.0)", score: 88, pricing: "Free (self-hosted)", website: "https://qwenlm.github.io" },
+      { company: "Alibaba", name: "Qwen2.5-Max", modality: "Text, MoE", category: "text", availability: "Open Source (Apache 2.0)", score: 87, pricing: "Input: $0.35 / Output: $1.55 per 1M tokens", website: "https://qwenlm.github.io" },
+      { company: "Alibaba", name: "Qwen2.5-72B", modality: "Text", category: "text", availability: "Open Source (Apache 2.0)", score: 84, pricing: "Free (self-hosted)", website: "https://qwenlm.github.io" },
+      { company: "Alibaba", name: "Qwen3-Coder", modality: "Text/Code", category: "text", availability: "Open Source (Apache 2.0)", score: 85, pricing: "Free (self-hosted)", website: "https://qwenlm.github.io" },
+      { company: "Meta", name: "Llama 4 Maverick", modality: "Text", category: "text", availability: "Open Source (Llama License)", score: 86, pricing: "Free (self-hosted)", website: "https://llama.meta.com" },
+      { company: "Meta", name: "Llama 4 Scout", modality: "Text", category: "text", availability: "Open Source (Llama License)", score: 84, pricing: "Free (self-hosted)", website: "https://llama.meta.com" },
+      { company: "Meta", name: "Llama 3.3 70B", modality: "Text", category: "text", availability: "Open Source (Llama License)", score: 82, pricing: "Free (self-hosted)", website: "https://llama.meta.com" },
+      { company: "Mistral AI", name: "Mistral Large 3", modality: "Text, MoE", category: "text", availability: "Private/Open", score: 87, pricing: "Input: $2.00 / Output: $6.00 per 1M tokens", website: "https://mistral.ai" },
+      { company: "Mistral AI", name: "Mixtral 8x22B", modality: "Text, MoE", category: "text", availability: "Open Source (Apache 2.0)", score: 83, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+      { company: "Mistral AI", name: "Mistral Small 3 (24B)", modality: "Text", category: "text", availability: "Open Source (Apache 2.0)", score: 80, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+      { company: "Mistral AI", name: "Ministral 3B/8B", modality: "Text", category: "text", availability: "Open Source (Apache 2.0)", score: 72, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+      { company: "Mistral AI", name: "Codestral", modality: "Text/Code", category: "text", availability: "Open Source (Apache 2.0)", score: 82, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+      { company: "Cohere", name: "Command R+", modality: "Text", category: "text", availability: "Private", score: 81, pricing: "Input: $2.50 / Output: $10.00 per 1M tokens", website: "https://cohere.com" },
+      { company: "Cohere", name: "Command A Vision", modality: "Text/Multimodal", category: "text", availability: "Private", score: 79, pricing: "Contact for pricing", website: "https://cohere.com" },
+      { company: "Microsoft", name: "Phi-4", modality: "Text", category: "text", availability: "Open Source", score: 76, pricing: "Free (self-hosted)", website: "https://microsoft.com" },
+      { company: "Microsoft", name: "Phi-4-mini-reasoning", modality: "Text/Reasoning", category: "text", availability: "Open Source", score: 74, pricing: "Free (self-hosted)", website: "https://microsoft.com" },
+      { company: "Google", name: "Gemma 3 27B", modality: "Text", category: "text", availability: "Open Source (Gemma License)", score: 78, pricing: "Free (self-hosted)", website: "https://ai.google.dev/gemma" },
+      { company: "Google", name: "Gemma 2 9B", modality: "Text", category: "text", availability: "Open Source (Gemma License)", score: 73, pricing: "Free (self-hosted)", website: "https://ai.google.dev/gemma" },
+      { company: "IBM", name: "Granite 4", modality: "Text", category: "text", availability: "Open Source (Apache 2.0)", score: 75, pricing: "Free (self-hosted)", website: "https://ibm.com/granite" },
+      { company: "Zhipu AI", name: "GLM-4.7", modality: "Text/Code, MoE", category: "text", availability: "Open Source (Apache 2.0)", score: 90, pricing: "Input: $0.10 / Output: $0.10 per 1M tokens", website: "https://z.ai" },
+      { company: "Zhipu AI", name: "GLM-4.7-Flash", modality: "Text/Code, MoE", category: "text", availability: "Open Source (Apache 2.0)", score: 87, pricing: "Free tier available", website: "https://z.ai" },
+      { company: "Moonshot AI", name: "Kimi K2.5", modality: "Text, MoE", category: "text", availability: "Open Source", score: 92, pricing: "Input: $0.60 / Output: $2.50 per 1M tokens", website: "https://moonshot.ai" },
+      { company: "Moonshot AI", name: "Kimi K2 Thinking", modality: "Text/Reasoning, MoE", category: "text", availability: "Private", score: 93, pricing: "Input: $0.60 / Output: $2.50 per 1M tokens (base)", website: "https://platform.moonshot.ai" },
+      { company: "Moonshot AI", name: "Kimi K2", modality: "Text, MoE", category: "text", availability: "Open Source", score: 89, pricing: "Input: $0.60 / Output: $2.50 per 1M tokens", website: "https://platform.moonshot.ai" },
+
+      // Image Generation Models
+      { company: "OpenAI", name: "GPT Image 1.5 (DALL-E 3.5)", modality: "Image", category: "image", availability: "Private", score: 92, pricing: "$0.01-$0.17 per image", website: "https://openai.com" },
+      { company: "Midjourney", name: "Midjourney v7", modality: "Image", category: "image", availability: "Private", score: 94, pricing: "$10-$120/month", website: "https://midjourney.com" },
+      { company: "Black Forest Labs", name: "FLUX 2 Max", modality: "Image", category: "image", availability: "Open Source", score: 91, pricing: "Free (self-hosted)", website: "https://blackforestlabs.ai" },
+      { company: "Black Forest Labs", name: "FLUX 1.1 Pro", modality: "Image", category: "image", availability: "Private/API", score: 93, pricing: "API pricing varies", website: "https://blackforestlabs.ai" },
+      { company: "Black Forest Labs", name: "FLUX.1 Schnell", modality: "Image", category: "image", availability: "Open Source", score: 85, pricing: "Free (self-hosted)", website: "https://blackforestlabs.ai" },
+      { company: "Stability AI", name: "Stable Diffusion 3.5", modality: "Image", category: "image", availability: "Open Source", score: 86, pricing: "Free (self-hosted)", website: "https://stability.ai" },
+      { company: "Google", name: "Imagen 4", modality: "Image", category: "image", availability: "Private", score: 90, pricing: "Contact for pricing", website: "https://deepmind.google" },
+      { company: "Google", name: "Gemini 3 Pro Image", modality: "Image/Multimodal", category: "image", availability: "Private", score: 89, pricing: "Included in Gemini pricing", website: "https://google.com" },
+      { company: "Adobe", name: "Firefly Image 3", modality: "Image", category: "image", availability: "Private", score: 87, pricing: "$4.99-$59.99/month", website: "https://adobe.com/firefly" },
+      { company: "Ideogram", name: "Ideogram 3.0", modality: "Image", category: "image", availability: "Private", score: 88, pricing: "$7-$48/month", website: "https://ideogram.ai" },
+      { company: "Tencent", name: "Hunyuan Image 3.0", modality: "Image", category: "image", availability: "Private", score: 85, pricing: "Contact for pricing", website: "https://hunyuan.tencent.com" },
+      { company: "ByteDance", name: "Seedream 4.5", modality: "Image", category: "image", availability: "Private", score: 83, pricing: "Contact for pricing", website: "https://seedream.ai" },
+      { company: "Recraft", name: "Recraft v3", modality: "Image", category: "image", availability: "Private", score: 84, pricing: "Free tier + paid", website: "https://recraft.ai" },
+      { company: "Alibaba (Tongyi)", name: "Z-Image", modality: "Image", category: "image", availability: "Open Source (Apache 2.0)", score: 87, pricing: "Free (self-hosted) or API", website: "https://github.com/Tongyi-MAI/Z-Image" },
+      { company: "Alibaba (Tongyi)", name: "Z-Image-Turbo", modality: "Image", category: "image", availability: "Open Source (Apache 2.0)", score: 89, pricing: "$0.005/megapixel (API)", website: "https://github.com/Tongyi-MAI/Z-Image" },
+      { company: "Alibaba (Tongyi)", name: "Z-Image-Edit", modality: "Image", category: "image", availability: "Open Source (Apache 2.0)", score: 84, pricing: "Free (self-hosted)", website: "https://github.com/Tongyi-MAI/Z-Image" },
+
+      // Video Generation Models
+      { company: "OpenAI", name: "Sora 2", modality: "Video", category: "video", availability: "Private (Limited)", score: 94, pricing: "$20-$200/month", website: "https://openai.com" },
+      { company: "Google", name: "Veo 3", modality: "Video", category: "video", availability: "Private", score: 92, pricing: "Contact for pricing", website: "https://deepmind.google" },
+      { company: "Runway", name: "Gen-4.5", modality: "Video", category: "video", availability: "Private", score: 93, pricing: "$12-$95/month", website: "https://runwayml.com" },
+      { company: "Pika Labs", name: "Pika 2.5", modality: "Video", category: "video", availability: "Private", score: 86, pricing: "$8-$95/month", website: "https://pika.art" },
+      { company: "Luma AI", name: "Luma Ray2 Dream Machine", modality: "Video", category: "video", availability: "Private", score: 87, pricing: "$9.99-$29.99/month", website: "https://lumalabs.ai" },
+      { company: "Kuaishou", name: "Kling 2.5 Turbo", modality: "Video", category: "video", availability: "Private", score: 88, pricing: "$6.99-$99/month", website: "https://klingai.com" },
+      { company: "ByteDance", name: "Seedance 1.5", modality: "Video", category: "video", availability: "Private", score: 87, pricing: "Contact for pricing", website: "https://seedance.ai" },
+      { company: "xAI", name: "Grok Imagine", modality: "Video", category: "video", availability: "Private", score: 82, pricing: "Part of Grok subscription", website: "https://x.ai" },
+      { company: "Stability AI", name: "Stable Diffusion Video (SVD)", modality: "Video", category: "video", availability: "Open Source", score: 78, pricing: "Free (self-hosted)", website: "https://stability.ai" },
+      { company: "Adobe", name: "Firefly Video", modality: "Video", category: "video", availability: "Private", score: 83, pricing: "$22.99-$59.99/month", website: "https://adobe.com/firefly" },
+      { company: "Genmo", name: "Mochi 1", modality: "Video", category: "video", availability: "Private", score: 80, pricing: "Contact for pricing", website: "https://genmo.ai" },
+      { company: "Hailuo AI", name: "T2V-01 Director", modality: "Video", category: "video", availability: "Private", score: 79, pricing: "$14.99/month", website: "https://hailuo.ai" },
+      { company: "Vidu", name: "Vidu 2.0", modality: "Video", category: "video", availability: "Private", score: 81, pricing: "~$0.0375/second", website: "https://vidu.studio" },
+      { company: "Wan-AI", name: "Wan2.2", modality: "Video, MoE", category: "video", availability: "Open Source", score: 82, pricing: "Free (self-hosted)", website: "https://wan-ai.github.io" },
+      { company: "Lightricks", name: "LTX-2", modality: "Video/Audio", category: "video", availability: "Open Source (Apache 2.0)", score: 91, pricing: "$0.04-$0.08/sec (API) or Free (self-hosted)", website: "https://ltx.io/model/ltx-2" },
+      { company: "Lightricks", name: "LTX-2 Fast", modality: "Video/Audio", category: "video", availability: "Open Source (Apache 2.0)", score: 88, pricing: "$0.04/sec (API)", website: "https://ltx.io/model/ltx-2" },
+      { company: "Lightricks", name: "LTX-2 Pro", modality: "Video/Audio", category: "video", availability: "Open Source (Apache 2.0)", score: 90, pricing: "$0.08/sec (API)", website: "https://ltx.io/model/ltx-2" },
+      { company: "Lightricks", name: "LTX-2 Ultra", modality: "Video/Audio", category: "video", availability: "Open Source (Apache 2.0)", score: 92, pricing: "TBA", website: "https://ltx.io/model/ltx-2" },
+
+      // Vision-Language Models
+      { company: "Anthropic", name: "Claude 4.5 with Vision", modality: "Multimodal", category: "multimodal", availability: "Private", score: 91, pricing: "Same as Claude pricing", website: "https://anthropic.com" },
+      { company: "OpenAI", name: "GPT-4o Vision", modality: "Multimodal", category: "multimodal", availability: "Private", score: 90, pricing: "Same as GPT-4o pricing", website: "https://openai.com" },
+      { company: "Google", name: "Gemini 3 Pro", modality: "Multimodal", category: "multimodal", availability: "Private", score: 92, pricing: "Same as Gemini pricing", website: "https://google.com" },
+      { company: "Alibaba", name: "Qwen2.5-VL-72B", modality: "Multimodal", category: "multimodal", availability: "Open Source (Apache 2.0)", score: 84, pricing: "Free (self-hosted)", website: "https://qwenlm.github.io" },
+      { company: "Meta", name: "Llama 3.2 Vision", modality: "Multimodal", category: "multimodal", availability: "Open Source (Llama License)", score: 80, pricing: "Free (self-hosted)", website: "https://llama.meta.com" },
+      { company: "Google", name: "Gemma 3 Vision", modality: "Multimodal", category: "multimodal", availability: "Open Source (Gemma License)", score: 76, pricing: "Free (self-hosted)", website: "https://ai.google.dev/gemma" },
+      { company: "Mistral AI", name: "Pixtral 12B", modality: "Multimodal", category: "multimodal", availability: "Open Source (Apache 2.0)", score: 78, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+
+      // Audio/Speech Models
+      { company: "OpenAI", name: "Whisper v3", modality: "Speech-to-Text", category: "audio", availability: "Open Source", score: 88, pricing: "Free (self-hosted)", website: "https://openai.com" },
+      { company: "OpenAI", name: "TTS HD", modality: "Text-to-Speech", category: "audio", availability: "Private", score: 86, pricing: "$15.00/1M chars", website: "https://openai.com" },
+      { company: "Google", name: "Gemini Live Audio", modality: "Audio/Multimodal", category: "audio", availability: "Private", score: 85, pricing: "Included in Gemini pricing", website: "https://google.com" },
+      { company: "ElevenLabs", name: "ElevenLabs v3", modality: "Text-to-Speech", category: "audio", availability: "Private", score: 92, pricing: "$5-$330/month", website: "https://elevenlabs.io" },
+      { company: "Mistral AI", name: "Voxtral", modality: "Audio", category: "audio", availability: "Open Source (Apache 2.0)", score: 80, pricing: "Free (self-hosted)", website: "https://mistral.ai" },
+      { company: "Alibaba", name: "Qwen-Audio", modality: "Audio/Multimodal", category: "audio", availability: "Open Source (Apache 2.0)", score: 78, pricing: "Free (self-hosted)", website: "https://qwenlm.github.io" },
+
+      // Embedding Models
+      { company: "OpenAI", name: "text-embedding-3-large", modality: "Embeddings", category: "embeddings", availability: "Private", score: 88, pricing: "$0.13/1M tokens", website: "https://openai.com" },
+      { company: "OpenAI", name: "text-embedding-3-small", modality: "Embeddings", category: "embeddings", availability: "Private", score: 84, pricing: "$0.02/1M tokens", website: "https://openai.com" },
+      { company: "Cohere", name: "Embed 4", modality: "Embeddings", category: "embeddings", availability: "Private", score: 86, pricing: "Contact for pricing", website: "https://cohere.com" },
+      { company: "Voyage AI", name: "voyage-3", modality: "Embeddings", category: "embeddings", availability: "Private", score: 87, pricing: "Contact for pricing", website: "https://voyageai.com" }
+    ];
+
+    let filteredModels = [...models];
+    let currentSort = { column: null, direction: 'asc' };
+
+    // Populate company filter
+    const companies = [...new Set(models.map(m => m.company))].sort();
+    const companyFilter = document.getElementById('companyFilter');
+    companies.forEach(company => {
+      const option = document.createElement('option');
+      option.value = company;
+      option.textContent = company;
+      companyFilter.appendChild(option);
+    });
+
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const cardsContainer = document.getElementById('cardsContainer');
+      tbody.innerHTML = '';
+      cardsContainer.innerHTML = '';
+
+      if (filteredModels.length === 0) {
+        tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <div>No models found matching your filters</div>
+                        </td>
+                    </tr>
+                `;
+        cardsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <div>No models found matching your filters</div>
+                    </div>
+                `;
+        return;
+      }
+
+      filteredModels.forEach((model, index) => {
+        // Render table row
+        const row = document.createElement('tr');
+        row.style.animationDelay = `${index * 0.02}s`;
+
+        const availabilityClass = model.availability.toLowerCase().includes('open') ? 'badge-opensource' : 'badge-private';
+        const modalityBadges = getModalityBadges(model.modality);
+
+        row.innerHTML = `
+                    <td><span class="company-logo">${model.company}</span></td>
+                    <td><strong>${model.name}</strong></td>
+                    <td>${modalityBadges}</td>
+                    <td><span class="badge ${availabilityClass}">${model.availability.split(' ')[0]}</span></td>
+                    <td>
+                        <div class="score-bar">
+                            <span class="score-value">${model.score}</span>
+                            <div class="score-visual">
+                                <div class="score-fill" style="width: ${model.score}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${model.pricing}</td>
+                    <td><a href="${model.website}" target="_blank">Visit →</a></td>
+                `;
+
+        tbody.appendChild(row);
+
+        // Render mobile card
+        const card = document.createElement('div');
+        card.className = 'model-card';
+        card.style.animationDelay = `${index * 0.02}s`;
+
+        card.innerHTML = `
+                    <div class="model-card-header">
+                        <div class="model-card-name">${model.name}</div>
+                        <div class="model-card-company">${model.company}</div>
+                    </div>
+                    <div class="model-card-body">
+                        <div class="model-card-field full-width">
+                            <div class="model-card-label">Modality</div>
+                            <div class="model-card-value">${modalityBadges}</div>
+                        </div>
+                        <div class="model-card-field">
+                            <div class="model-card-label">Availability</div>
+                            <div class="model-card-value">
+                                <span class="badge ${availabilityClass}">${model.availability.split(' ')[0]}</span>
+                            </div>
+                        </div>
+                        <div class="model-card-field">
+                            <div class="model-card-label">Score</div>
+                            <div class="model-card-value">
+                                <div class="score-bar">
+                                    <span class="score-value">${model.score}</span>
+                                    <div class="score-visual">
+                                        <div class="score-fill" style="width: ${model.score}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="model-card-field full-width">
+                            <div class="model-card-label">Pricing</div>
+                            <div class="model-card-value">${model.pricing}</div>
+                        </div>
+                    </div>
+                    <div class="model-card-footer">
+                        <a href="${model.website}" target="_blank" class="model-card-link">
+                            Visit Official Website →
+                        </a>
+                    </div>
+                `;
+
+        cardsContainer.appendChild(card);
+      });
+
+      updateStats();
+    }
+
+    function getModalityBadges(modality) {
+      const badges = [];
+      const lower = modality.toLowerCase();
+
+      if (lower.includes('text') || lower.includes('language')) badges.push('<span class="badge badge-text">Text</span>');
+      if (lower.includes('image')) badges.push('<span class="badge badge-image">Image</span>');
+      if (lower.includes('video')) badges.push('<span class="badge badge-video">Video</span>');
+      if (lower.includes('audio') || lower.includes('speech')) badges.push('<span class="badge badge-audio">Audio</span>');
+      if (lower.includes('multimodal')) badges.push('<span class="badge badge-multimodal">Multimodal</span>');
+      if (lower.includes('moe')) badges.push('<span class="badge badge-text">MoE</span>');
+      if (lower.includes('code')) badges.push('<span class="badge badge-text">Code</span>');
+      if (lower.includes('reasoning')) badges.push('<span class="badge badge-text">Reasoning</span>');
+      if (lower.includes('embeddings')) badges.push('<span class="badge badge-text">Embeddings</span>');
+
+      return badges.join(' ');
+    }
+
+    function updateStats() {
+      document.getElementById('totalModels').textContent = models.length;
+      document.getElementById('visibleModels').textContent = filteredModels.length;
+
+      const openSourceCount = filteredModels.filter(m =>
+        m.availability.toLowerCase().includes('open')
+      ).length;
+      document.getElementById('openSourceCount').textContent = openSourceCount;
+
+      const avgScore = filteredModels.length > 0
+        ? Math.round(filteredModels.reduce((sum, m) => sum + m.score, 0) / filteredModels.length)
+        : 0;
+      document.getElementById('avgScore').textContent = avgScore;
+    }
+
+    function applyFilters() {
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const availability = document.getElementById('availabilityFilter').value;
+      const company = document.getElementById('companyFilter').value;
+
+      filteredModels = models.filter(model => {
+        const matchesSearch =
+          model.name.toLowerCase().includes(searchTerm) ||
+          model.company.toLowerCase().includes(searchTerm) ||
+          model.modality.toLowerCase().includes(searchTerm);
+
+        const matchesCategory = category === 'all' || model.category === category;
+
+        const matchesAvailability =
+          availability === 'all' ||
+          (availability === 'opensource' && model.availability.toLowerCase().includes('open')) ||
+          (availability === 'private' && model.availability.toLowerCase().includes('private'));
+
+        const matchesCompany = company === 'all' || model.company === company;
+
+        return matchesSearch && matchesCategory && matchesAvailability && matchesCompany;
+      });
+
+      renderTable();
+    }
+
+    function sortTable(column) {
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+      }
+
+      filteredModels.sort((a, b) => {
+        let aVal = a[column];
+        let bVal = b[column];
+
+        if (column === 'score') {
+          aVal = parseInt(aVal);
+          bVal = parseInt(bVal);
+        }
+
+        if (typeof aVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+
+        if (currentSort.direction === 'asc') {
+          return aVal > bVal ? 1 : -1;
+        } else {
+          return aVal < bVal ? 1 : -1;
+        }
+      });
+
+      // Update header styles
+      document.querySelectorAll('th').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+      });
+
+      const header = document.querySelector(`th[data-sort="${column}"]`);
+      if (header) {
+        header.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+      }
+
+      renderTable();
+    }
+
+    // Event listeners
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+    document.getElementById('availabilityFilter').addEventListener('change', applyFilters);
+    document.getElementById('companyFilter').addEventListener('change', applyFilters);
+
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        sortTable(th.dataset.sort);
+      });
+    });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const filter = chip.dataset.filter;
+        const searchBox = document.getElementById('search');
+
+        if (chip.classList.contains('active')) {
+          chip.classList.remove('active');
+          searchBox.value = '';
+        } else {
+          document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          searchBox.value = filter;
+        }
+
+        applyFilters();
+      });
+    });
+
+    // Initial render
+    renderTable();
+  </script>
+</body>
+
+</html>
