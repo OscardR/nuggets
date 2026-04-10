@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mariposa-Maripósez Flight</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f8ff;
+        font-family: "Arial", sans-serif;
+      }
+      canvas {
+        border: 5px solid #ff69b4;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(#87ceeb, #e0f7fa);
+      }
+      #ui {
+        position: absolute;
+        text-align: center;
+        color: #ff1493;
+        pointer-events: none;
+        text-shadow: 2px 2px white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <h1 id="msg">¡Pulsa para Volar!</h1>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const msg = document.getElementById("msg");
+
+      // Ajustar tamaño
+      canvas.width = 400;
+      canvas.height = 600;
+
+      // Variables del juego
+      let bird = {
+        x: 50,
+        y: 300,
+        w: 40,
+        h: 40,
+        velocity: 0,
+        gravity: 0.25,
+        jump: -5,
+      };
+      let pipes = [];
+      let score = 0;
+      let gameActive = false;
+      let frameCount = 0;
+
+      function drawMariposa(x, y) {
+        // Cuerpo
+        ctx.fillStyle = "#4169E1";
+        ctx.beginPath();
+        ctx.ellipse(x + 20, y + 20, 5, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Alas (Estilo vitral)
+        const wingGradient = ctx.createRadialGradient(
+          x + 20,
+          y + 20,
+          5,
+          x + 20,
+          y + 20,
+          25,
+        );
+        wingGradient.addColorStop(0, "#ff1493");
+        wingGradient.addColorStop(0.5, "#ffd700");
+        wingGradient.addColorStop(1, "#00ced1");
+
+        ctx.fillStyle = wingGradient;
+        // Ala izquierda
+        ctx.beginPath();
+        ctx.ellipse(x + 10, y + 15, 15, 20, Math.PI / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // Ala derecha
+        ctx.beginPath();
+        ctx.ellipse(x + 30, y + 15, 15, 20, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Antenas
+        ctx.beginPath();
+        ctx.moveTo(x + 18, y + 10);
+        ctx.lineTo(x + 15, y);
+        ctx.moveTo(x + 22, y + 10);
+        ctx.lineTo(x + 25, y);
+        ctx.stroke();
+      }
+
+      function createPipe() {
+        const gap = 170;
+        const minHeight = 50;
+        const height =
+          Math.floor(Math.random() * (canvas.height - gap - minHeight * 2)) +
+          minHeight;
+        pipes.push({ x: canvas.width, y: 0, w: 60, h: height, type: "top" });
+        pipes.push({
+          x: canvas.width,
+          y: height + gap,
+          w: 60,
+          h: canvas.height - height - gap,
+          type: "bottom",
+        });
+      }
+
+      function drawPipe(pipe) {
+        // Dibujar "Flores Gigantes" como obstáculos
+        ctx.fillStyle = "#98FB98"; // Tallo
+        ctx.fillRect(pipe.x + 20, pipe.y, 20, pipe.h);
+
+        ctx.fillStyle = "#FF6347"; // Flor
+        if (pipe.type === "top") {
+          ctx.beginPath();
+          ctx.arc(pipe.x + 30, pipe.h, 40, 0, Math.PI, false);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(pipe.x + 30, pipe.y, 40, 0, Math.PI, true);
+          ctx.fill();
+        }
+      }
+
+      function reset() {
+        bird.y = 300;
+        bird.velocity = 0;
+        pipes = [];
+        score = 0;
+        frameCount = 0;
+        gameActive = true;
+        msg.innerText = "";
+      }
+
+      function update() {
+        if (!gameActive) return;
+
+        bird.velocity += bird.gravity;
+        bird.y += bird.velocity;
+
+        if (frameCount % 100 === 0) createPipe();
+
+        pipes.forEach((pipe, index) => {
+          pipe.x -= 2;
+
+          // Colisión
+          if (
+            bird.x < pipe.x + pipe.w &&
+            bird.x + bird.w > pipe.x &&
+            bird.y < pipe.y + pipe.h &&
+            bird.y + bird.h > pipe.y
+          ) {
+            gameActive = false;
+            msg.innerText = "¡OH NO! Pulsa para reintentar";
+          }
+
+          if (pipe.x + pipe.w < 0) {
+            if (index % 2 === 0) score++;
+            pipes.splice(index, 2);
+          }
+        });
+
+        if (bird.y > canvas.height || bird.y < 0) {
+          gameActive = false;
+          msg.innerText = "¡UPS! Pulsa para reintentar";
+        }
+
+        frameCount++;
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar fondo de nubes simples
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(100, 100, 30, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(300, 150, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        pipes.forEach(drawPipe);
+        drawMariposa(bird.x, bird.y);
+
+        // Puntuación
+        ctx.fillStyle = "#ff1493";
+        ctx.font = "bold 30px Arial";
+        ctx.fillText(`Puntos: ${score}`, 20, 40);
+
+        update();
+        requestAnimationFrame(draw);
+      }
+
+      function input() {
+        if (!gameActive) {
+          reset();
+        } else {
+          bird.velocity = bird.jump;
+        }
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") input();
+      });
+      canvas.addEventListener("mousedown", input);
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        input();
+      });
+
+      draw();
+    </script>
+  </body>
+</html>
